@@ -726,29 +726,39 @@
   // chave secreta), depois envia os bytes do arquivo direto pro Google
   // (sem passar pela nossa função, sem limite de tamanho por causa disso).
   async function uploadFileParaGemini(file){
-    const startRes = await fetch('/.netlify/functions/start-upload', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fileName: file.name, mimeType: file.type, fileSize: file.size })
-    });
+    let startRes;
+    try{
+      startRes = await fetch('/.netlify/functions/start-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, mimeType: file.type, fileSize: file.size })
+      });
+    }catch(e){
+      throw new Error('[etapa: iniciar-upload] ' + (e.message || 'falha de rede'));
+    }
     const startData = await startRes.json();
     if(!startRes.ok || !startData.uploadUrl){
-      throw new Error(startData.error || 'Não foi possível iniciar o envio do arquivo.');
+      throw new Error('[etapa: iniciar-upload] ' + (startData.error || 'Não foi possível iniciar o envio do arquivo.'));
     }
 
-    const uploadRes = await fetch(startData.uploadUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Length': String(file.size),
-        'X-Goog-Upload-Offset': '0',
-        'X-Goog-Upload-Command': 'upload, finalize'
-      },
-      body: file
-    });
+    let uploadRes;
+    try{
+      uploadRes = await fetch(startData.uploadUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Length': String(file.size),
+          'X-Goog-Upload-Offset': '0',
+          'X-Goog-Upload-Command': 'upload, finalize'
+        },
+        body: file
+      });
+    }catch(e){
+      throw new Error('[etapa: enviar-bytes] ' + (e.message || 'falha de rede'));
+    }
 
     const uploadData = await uploadRes.json();
     if(!uploadRes.ok){
-      throw new Error(uploadData?.error?.message || 'Falha ao enviar o arquivo.');
+      throw new Error('[etapa: enviar-bytes] ' + (uploadData?.error?.message || 'Falha ao enviar o arquivo.'));
     }
 
     let fileInfo = uploadData.file;
@@ -758,20 +768,25 @@
     let attempts = 0;
     while(fileInfo.state === 'PROCESSING' && attempts < 60){
       await sleep(3000);
-      const checkRes = await fetch('/.netlify/functions/check-file', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: fileInfo.name })
-      });
+      let checkRes;
+      try{
+        checkRes = await fetch('/.netlify/functions/check-file', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: fileInfo.name })
+        });
+      }catch(e){
+        throw new Error('[etapa: checar-status] ' + (e.message || 'falha de rede'));
+      }
       fileInfo = await checkRes.json();
       attempts++;
     }
 
     if(fileInfo.state === 'FAILED'){
-      throw new Error('O Google não conseguiu processar esse arquivo.');
+      throw new Error('[etapa: processamento-google] O Google não conseguiu processar esse arquivo.');
     }
     if(fileInfo.state !== 'ACTIVE'){
-      throw new Error('O processamento do arquivo demorou demais. Tente novamente.');
+      throw new Error('[etapa: processamento-google] O processamento do arquivo demorou demais. Tente novamente.');
     }
 
     return fileInfo; // { uri, mimeType, ... }
@@ -845,11 +860,16 @@
 
     } catch(err){
       let msg = err.message || 'Falha ao transcrever.';
+      const etapaMatch = msg.match(/^\[etapa: ([^\]]+)\]\s*/);
+      const etapa = etapaMatch ? etapaMatch[1] : null;
       const lowerMsg = msg.toLowerCase();
       if(lowerMsg.includes('failed to fetch') || lowerMsg.includes('networkerror')){
         msg = 'Falha de conexão ao enviar o arquivo. Verifique sua internet (uma rede Wi-Fi estável ajuda em arquivos grandes) e tente de novo.';
       } else if(lowerMsg.includes('chave de api')){
         msg = 'O servidor deste app ainda não foi configurado com a chave de API. Avise quem administra o Ws Transcrer.';
+      }
+      if(etapa){
+        msg += ' (etapa: ' + etapa + ')';
       }
       showError(msg);
       notificar('Falha na transcrição ⚠️', msg);
