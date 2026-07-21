@@ -1,6 +1,9 @@
 // Chama o generateContent do Gemini usando a chave secreta do servidor.
-// Faz retentativa automática em caso de sobrecarga (503), respeitando o
-// tempo limite de execução da função.
+// Recebe o arquivo em base64 (dados "inline") em vez de fazer o navegador
+// enviar o arquivo direto pro Google — o Google bloqueia esse tipo de
+// upload direto do navegador por segurança (CORS), então o arquivo passa
+// por aqui. Por isso o tamanho do arquivo fica limitado pelo tamanho
+// máximo de requisição da função (alguns MB).
 export default async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
@@ -15,16 +18,13 @@ export default async (req) => {
   }
 
   try {
-    const { fileUri, mimeType } = await req.json();
-    if (!fileUri || !mimeType) {
-      return Response.json({ error: 'fileUri e mimeType são obrigatórios.' }, { status: 400 });
+    const { mimeType, base64Data } = await req.json();
+    if (!mimeType || !base64Data) {
+      return Response.json({ error: 'mimeType e base64Data são obrigatórios.' }, { status: 400 });
     }
 
     const promptTexto = 'Transcreva integralmente o áudio deste arquivo. Detecte o idioma automaticamente e escreva a transcrição no idioma original falado, com pontuação e parágrafos naturais. Responda apenas com o texto transcrito, sem comentários, sem introdução e sem marcar o idioma.';
 
-    // Só uma retentativa curta aqui dentro — funções serverless têm um
-    // tempo de execução limitado, então retentativas mais longas ficam
-    // por conta do navegador (que chama esta função de novo se preciso).
     const MAX_TENTATIVAS = 2;
     const ESPERA_MS = 2500;
 
@@ -37,7 +37,7 @@ export default async (req) => {
           body: JSON.stringify({
             contents: [{
               parts: [
-                { file_data: { mime_type: mimeType, file_uri: fileUri } },
+                { inline_data: { mime_type: mimeType, data: base64Data } },
                 { text: promptTexto }
               ]
             }]
