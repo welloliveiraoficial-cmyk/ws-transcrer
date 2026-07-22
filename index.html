@@ -1623,6 +1623,16 @@
         if(registration.waiting){
           showUpdateButton(registration.waiting);
         }
+        // Uma versão nova já estava instalando quando chegamos aqui
+        // (evita perder a atualização por uma questão de tempo).
+        if(registration.installing){
+          const jaInstalando = registration.installing;
+          jaInstalando.addEventListener('statechange', () => {
+            if(jaInstalando.state === 'installed' && navigator.serviceWorker.controller){
+              showUpdateButton(jaInstalando);
+            }
+          });
+        }
 
         // Uma versão nova terminou de baixar agora, enquanto o app estava aberto.
         registration.addEventListener('updatefound', () => {
@@ -1634,6 +1644,9 @@
             }
           });
         });
+
+        // Força uma checagem agora (não espera o navegador decidir sozinho).
+        registration.update();
 
         // Verifica se há atualização toda vez que o app volta a ficar visível.
         document.addEventListener('visibilitychange', () => {
