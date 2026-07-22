@@ -649,6 +649,145 @@
     #splash{ transition: opacity .3s ease; }
     #splash.hide{ transform: none; }
   }
+
+  /* ---------- Abas / views ---------- */
+  body{ padding-bottom: 76px; }
+  .view.hidden{ display: none; }
+
+  .section-title{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+    margin: 28px 0 4px;
+  }
+  .section-sub{ font-size: 13px; color: var(--ink-dim); margin: 0 0 16px; }
+
+  /* Dropzone estilo "hero" (área grande de upload) */
+  .drop-hero{
+    display: block;
+    text-align: center;
+    padding: 34px 20px;
+    border: 1.5px dashed var(--line);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color .18s ease, background .18s ease, transform .12s ease;
+  }
+  .drop-hero:hover, .drop-hero.drag{
+    border-color: var(--cyan);
+    background: rgba(94,234,212,0.06);
+    transform: translateY(-1px);
+  }
+  .drop-hero-icon{
+    width: 56px; height: 56px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    box-shadow: 0 10px 26px -10px rgba(63,144,239,0.7);
+  }
+  .drop-hero-title{ font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; color: var(--ink); }
+  .drop-hero-sub{ font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+
+  /* Cards de destaque ("Por que usar...") */
+  .feature-card{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .feature-icon{
+    width: 38px; height: 38px;
+    flex: none;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .feature-title{ font-size: 14px; font-weight: 600; color: var(--ink); }
+  .feature-sub{ font-size: 12.5px; color: var(--ink-dim); margin-top: 2px; }
+
+  /* Estado vazio (aba Transcrições) */
+  .empty-state{
+    text-align: center;
+    padding: 48px 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--muted);
+  }
+  .empty-state svg{ color: var(--blue-dim); margin-bottom: 14px; }
+  .empty-state p{ font-size: 13.5px; line-height: 1.6; margin: 0; }
+
+  /* Lista de configurações */
+  .settings-heading{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 22px 2px 8px;
+  }
+  .settings-list{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .settings-item{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .settings-item:last-child{ border-bottom: none; }
+  .settings-item-btn{
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+  }
+  .settings-item-btn:hover{ background: var(--panel-2); }
+  .settings-item-icon{ font-size: 18px; flex: none; width: 22px; text-align: center; }
+  .settings-item-text{ flex: 1; min-width: 0; }
+  .settings-item-text .t{ font-size: 14px; color: var(--ink); }
+  .settings-item-text .s{ font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .settings-item .chev{ color: var(--muted); font-size: 18px; flex: none; }
+  .settings-footer{ text-align: center; font-size: 12px; color: var(--muted); margin: 26px 0 0; }
+
+  /* ---------- Barra de navegação inferior ---------- */
+  .tabbar{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 40;
+    display: flex;
+    background: rgba(9,14,26,0.92);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  .tabbar-btn{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    padding: 6px 4px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .tabbar-btn.active{ color: var(--cyan); }
+  .tabbar-btn:not(.active):hover{ color: var(--ink-dim); }
 </style>
 </head>
 <body>
@@ -662,32 +801,6 @@
     </div>
   </div>
   <div class="splash-name">Ws <span>Transcrer</span></div>
-</div>
-
-<button id="menuBtn" class="icon-btn" aria-label="Abrir menu" type="button">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-</button>
-
-<div id="menuOverlay" class="overlay" aria-hidden="true">
-  <div class="overlay-backdrop" data-close-menu></div>
-  <nav class="drawer">
-    <div class="drawer-header">
-      <img src="logo.png" alt="">
-      <span>Ws Transcrer</span>
-      <button class="drawer-close" data-close-menu aria-label="Fechar menu" type="button">×</button>
-    </div>
-    <ul class="drawer-list">
-      <li><button type="button" data-action="home">Início</button></li>
-      <li><button type="button" disabled>Nova Transcrição <span class="soon">em breve</span></button></li>
-      <li><button type="button" disabled>Minhas Transcrições <span class="soon">em breve</span></button></li>
-      <li><button type="button" disabled>Histórico <span class="soon">em breve</span></button></li>
-      <li><button type="button" disabled>Favoritos <span class="soon">em breve</span></button></li>
-      <li><button type="button" data-action="settings">Configurações</button></li>
-      <li><button type="button" data-action="about">Sobre o Aplicativo</button></li>
-      <li><button type="button" data-action="privacy">Política de Privacidade</button></li>
-      <li><button type="button" data-action="check-update">Verificar Atualizações</button></li>
-    </ul>
-  </nav>
 </div>
 
 <div id="sheetOverlay" class="overlay" aria-hidden="true">
@@ -738,18 +851,15 @@
 
   <div id="error" class="error-box" style="display:none;" role="alert"></div>
 
-  <!-- Upload -->
-  <div class="panel">
-    <p class="eyebrow">01 · Arquivo</p>
+  <!-- ===== ABA: ENVIAR ===== -->
+  <div id="view-enviar" class="view">
 
-    <label id="dropzone" class="drop" for="fileInput" aria-label="Selecionar arquivo de áudio ou vídeo">
-      <div class="icon" aria-hidden="true">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="margin:0 auto;">
-          <path d="M12 3v12m0-12 4 4m-4-4-4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="#2f83d6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+    <label id="dropzone" class="drop-hero" for="fileInput" aria-label="Selecionar arquivo de áudio ou vídeo">
+      <div class="drop-hero-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0-12 4 4m-4-4-4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div class="main">Arraste um arquivo aqui, ou clique para escolher</div>
-      <div class="sub">Áudio ou vídeo · até 4&nbsp;MB</div>
+      <div class="drop-hero-title">Selecione um arquivo</div>
+      <div class="drop-hero-sub">Arraste aqui, ou toque para escolher · até 4&nbsp;MB</div>
     </label>
     <input type="file" id="fileInput" accept="audio/*,video/*" />
 
@@ -760,12 +870,8 @@
         <button id="removeFile" aria-label="Remover arquivo" type="button">×</button>
       </div>
     </div>
-  </div>
 
-  <!-- Transcrever -->
-  <div class="panel">
-    <p class="eyebrow">02 · Transcrição</p>
-    <button id="transcribeBtn" class="btn" disabled>Transcrever</button>
+    <button id="transcribeBtn" class="btn" style="margin-top:16px;" disabled>Transcrever</button>
 
     <div id="processing" style="display:none; margin-top:18px;">
       <div class="waveform" aria-hidden="true">
@@ -779,16 +885,102 @@
       </div>
       <p class="status-text" id="statusText">ouvindo o áudio...</p>
     </div>
+
+    <!-- Resultado -->
+    <div class="panel" id="resultPanel" style="display:none; margin-top:18px;">
+      <p class="eyebrow">Transcrição</p>
+      <div class="transcript" id="transcriptText"></div>
+      <div class="result-actions">
+        <button class="btn btn-ghost" id="copyBtn" type="button">Copiar texto</button>
+        <button class="btn btn-ghost" id="downloadBtn" type="button">Baixar .txt</button>
+      </div>
+    </div>
+
+    <p class="section-title">Por que usar o Ws Transcrer?</p>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(63,144,239,0.16); color:var(--blue);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V7a4 4 0 0 0-4-4Z" stroke="currentColor" stroke-width="1.8"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="feature-title">Qualquer idioma</div>
+        <div class="feature-sub">Detecção automática — sem precisar selecionar nada</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(94,234,212,0.14); color:var(--cyan);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="feature-title">Rápido</div>
+        <div class="feature-sub">A transcrição sai em segundos, não em horas</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(63,144,239,0.16); color:var(--blue);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m4 12 5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="feature-title">Chave protegida</div>
+        <div class="feature-sub">A chave de API fica só no servidor, nunca no app</div>
+      </div>
+    </div>
   </div>
 
-  <!-- Resultado -->
-  <div class="panel" id="resultPanel" style="display:none;">
-    <p class="eyebrow">Transcrição</p>
-    <div class="transcript" id="transcriptText"></div>
-    <div class="result-actions">
-      <button class="btn btn-ghost" id="copyBtn" type="button">Copiar texto</button>
-      <button class="btn btn-ghost" id="downloadBtn" type="button">Baixar .txt</button>
+  <!-- ===== ABA: TRANSCRIÇÕES ===== -->
+  <div id="view-transcricoes" class="view hidden">
+    <p class="section-title" style="margin-top:0;">Transcrições</p>
+    <p class="section-sub">Visualize e gerencie suas transcrições</p>
+    <div class="empty-state">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.5"/><path d="M9 12h6M9 16h6M9 8h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <p>Ainda não há transcrições salvas.<br>Envie seu primeiro arquivo na aba "Enviar" para começar!</p>
     </div>
+  </div>
+
+  <!-- ===== ABA: CONFIGURAÇÕES ===== -->
+  <div id="view-config" class="view hidden">
+    <p class="section-title" style="margin-top:0;">Configurações</p>
+    <p class="section-sub">Personalize sua experiência</p>
+
+    <p class="settings-heading">Preferências</p>
+    <div class="settings-list">
+      <div class="settings-item">
+        <div class="settings-item-icon">🌙</div>
+        <div class="settings-item-text"><div class="t">Tema</div><div class="s">Escuro (fixo)</div></div>
+      </div>
+      <div class="settings-item">
+        <div class="settings-item-icon">🌐</div>
+        <div class="settings-item-text"><div class="t">Idioma do aplicativo</div><div class="s">Português (Brasil)</div></div>
+      </div>
+      <div class="settings-item">
+        <div class="settings-item-icon">🔔</div>
+        <div class="settings-item-text"><div class="t">Notificações</div><div class="s" id="notifStatusText">—</div></div>
+      </div>
+    </div>
+
+    <p class="settings-heading">Atualizações</p>
+    <div class="settings-list">
+      <button type="button" class="settings-item settings-item-btn" id="checkUpdateRow">
+        <div class="settings-item-icon">🔄</div>
+        <div class="settings-item-text"><div class="t">Verificar atualizações</div><div class="s" id="versionText">Versão 1.1.0</div></div>
+        <span class="chev">›</span>
+      </button>
+    </div>
+
+    <p class="settings-heading">Sobre</p>
+    <div class="settings-list">
+      <button type="button" class="settings-item settings-item-btn" data-action="about">
+        <div class="settings-item-icon">ℹ️</div>
+        <div class="settings-item-text"><div class="t">Sobre o Aplicativo</div></div>
+        <span class="chev">›</span>
+      </button>
+      <button type="button" class="settings-item settings-item-btn" data-action="privacy">
+        <div class="settings-item-icon">🛡️</div>
+        <div class="settings-item-text"><div class="t">Política de Privacidade</div></div>
+        <span class="chev">›</span>
+      </button>
+    </div>
+
+    <p class="settings-footer">Feito com 💙 · Ws Transcrer</p>
   </div>
 
   <footer>
@@ -796,6 +988,22 @@
   </footer>
 
 </div>
+
+<nav class="tabbar" aria-label="Navegação principal">
+  <button type="button" class="tabbar-btn active" data-tab="enviar">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0-12 4 4m-4-4-4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Enviar</span>
+  </button>
+  <button type="button" class="tabbar-btn" data-tab="transcricoes">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6"/><path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span>Transcrições</span>
+  </button>
+  <button type="button" class="tabbar-btn" data-tab="config">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.96 19a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.96a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1.04-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.56 1.04H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15Z" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span>Configurações</span>
+  </button>
+</nav>
+
 
 <script>
 (function(){
@@ -841,24 +1049,12 @@
     }
   }
 
-  // ---------- Menu e telas (Configurações / Sobre / Privacidade) ----------
+  // ---------- Abas (Enviar / Transcrições / Configurações) ----------
   const APP_VERSION = '1.1.0';
   let swRegistration = null;
 
-  const menuBtn = document.getElementById('menuBtn');
-  const menuOverlay = document.getElementById('menuOverlay');
   const sheetOverlay = document.getElementById('sheetOverlay');
-  const sheetTitle = document.getElementById('sheetTitle');
-  const sheetBody = document.getElementById('sheetBody');
 
-  function openMenu(){
-    menuOverlay.classList.add('open');
-    menuOverlay.setAttribute('aria-hidden', 'false');
-  }
-  function closeMenu(){
-    menuOverlay.classList.remove('open');
-    menuOverlay.setAttribute('aria-hidden', 'true');
-  }
   function closeSheet(){
     sheetOverlay.classList.remove('open');
     sheetOverlay.setAttribute('aria-hidden', 'true');
@@ -871,54 +1067,33 @@
     return 'Ainda não ativadas';
   }
 
-  function renderSettings(){
-    sheetTitle.textContent = 'Configurações';
-    sheetBody.innerHTML = `
-      <div class="settings-row">
-        <div><div class="label">Tema</div><div class="sub">O Ws Transcrer é só modo escuro</div></div>
-        <div class="value">Escuro</div>
-      </div>
-      <div class="settings-row">
-        <div><div class="label">Idioma do aplicativo</div></div>
-        <div class="value">Português (Brasil)</div>
-      </div>
-      <div class="settings-row">
-        <div><div class="label">Notificações</div></div>
-        <div class="value">${statusNotificacao()}</div>
-      </div>
-      <div class="settings-row">
-        <div><div class="label">Histórico</div><div class="sub">Nenhuma transcrição salva ainda</div></div>
-        <button class="btn btn-ghost" type="button" disabled style="width:auto;padding:8px 12px;">Limpar</button>
-      </div>
-      <div class="settings-row">
-        <div><div class="label">Verificar atualizações</div></div>
-        <button id="checkUpdateBtn" class="btn btn-ghost" type="button" style="width:auto;padding:8px 12px;">Verificar</button>
-      </div>
-      <div class="settings-row">
-        <div><div class="label">Versão instalada</div></div>
-        <div class="value">${APP_VERSION}</div>
-      </div>
-    `;
-    document.getElementById('checkUpdateBtn').addEventListener('click', async (e) => {
-      const btn = e.currentTarget;
-      btn.disabled = true;
-      btn.textContent = 'Verificando...';
+  function atualizarConfigView(){
+    const notifEl = document.getElementById('notifStatusText');
+    if(notifEl) notifEl.textContent = statusNotificacao();
+    const versionEl = document.getElementById('versionText');
+    if(versionEl) versionEl.textContent = 'Versão ' + APP_VERSION;
+  }
+
+  const checkUpdateRow = document.getElementById('checkUpdateRow');
+  if(checkUpdateRow){
+    checkUpdateRow.addEventListener('click', async () => {
+      const label = checkUpdateRow.querySelector('.s');
+      const original = label.textContent;
+      label.textContent = 'Verificando...';
       try{
         if(swRegistration) await swRegistration.update();
         setTimeout(() => {
-          btn.textContent = waitingWorker ? 'Atualização encontrada!' : 'Nenhuma novidade';
-          btn.disabled = false;
+          label.textContent = waitingWorker ? 'Atualização encontrada! Veja o botão no topo.' : 'Nenhuma novidade — você já está atualizado';
         }, 900);
       }catch(e){
-        btn.textContent = 'Verificar';
-        btn.disabled = false;
+        label.textContent = original;
       }
     });
   }
 
   function renderAbout(){
-    sheetTitle.textContent = 'Sobre o Aplicativo';
-    sheetBody.innerHTML = `
+    document.getElementById('sheetTitle').textContent = 'Sobre o Aplicativo';
+    document.getElementById('sheetBody').innerHTML = `
       <p><strong>Ws Transcrer</strong> transcreve áudio e vídeo em texto, em qualquer idioma, direto do navegador.</p>
       <p>Versão ${APP_VERSION}.</p>
       <p>A transcrição é feita pela IA do Google (Gemini). O envio do arquivo e a chave de acesso ficam protegidos por um servidor próprio — o arquivo nunca é salvo permanentemente em nenhum lugar.</p>
@@ -926,8 +1101,8 @@
   }
 
   function renderPrivacy(){
-    sheetTitle.textContent = 'Política de Privacidade';
-    sheetBody.innerHTML = `
+    document.getElementById('sheetTitle').textContent = 'Política de Privacidade';
+    document.getElementById('sheetBody').innerHTML = `
       <p>O Ws Transcrer foi feito pra ser simples e direto: sem cadastro, sem conta, sem rastreamento.</p>
       <h3>O que acontece com o seu arquivo</h3>
       <p>O áudio ou vídeo que você envia é transmitido para os servidores do Google (Gemini) apenas para gerar a transcrição. Ele não fica guardado nos nossos servidores depois disso.</p>
@@ -941,31 +1116,30 @@
   }
 
   function openSheet(tipo){
-    if(tipo === 'settings') renderSettings();
-    else if(tipo === 'about') renderAbout();
+    if(tipo === 'about') renderAbout();
     else if(tipo === 'privacy') renderPrivacy();
     sheetOverlay.classList.add('open');
     sheetOverlay.setAttribute('aria-hidden', 'false');
   }
 
-  menuBtn.addEventListener('click', openMenu);
-  document.querySelectorAll('[data-close-menu]').forEach((el) => el.addEventListener('click', closeMenu));
   document.querySelectorAll('[data-close-sheet]').forEach((el) => el.addEventListener('click', closeSheet));
+  document.querySelectorAll('[data-action="about"], [data-action="privacy"]').forEach((btn) => {
+    btn.addEventListener('click', () => openSheet(btn.getAttribute('data-action')));
+  });
 
-  document.querySelectorAll('.drawer-list [data-action]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const action = btn.getAttribute('data-action');
-      if(action === 'home'){
-        closeMenu();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else if(action === 'settings' || action === 'about' || action === 'privacy'){
-        closeMenu();
-        openSheet(action);
-      } else if(action === 'check-update'){
-        closeMenu();
-        if(swRegistration) swRegistration.update();
-        openSheet('settings');
-      }
+  // Troca de abas
+  const views = {
+    enviar: document.getElementById('view-enviar'),
+    transcricoes: document.getElementById('view-transcricoes'),
+    config: document.getElementById('view-config')
+  };
+  document.querySelectorAll('.tabbar-btn').forEach((tabBtn) => {
+    tabBtn.addEventListener('click', () => {
+      const tab = tabBtn.getAttribute('data-tab');
+      document.querySelectorAll('.tabbar-btn').forEach((b) => b.classList.toggle('active', b === tabBtn));
+      Object.entries(views).forEach(([name, el]) => el.classList.toggle('hidden', name !== tab));
+      if(tab === 'config') atualizarConfigView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 
@@ -1075,7 +1249,7 @@
     for(let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++){
       let resp;
       try{
-        resp = await fetch('/.netlify/functions/transcribe', {
+        resp = await fetch('/api/transcribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mimeType: file.type, base64Data })
