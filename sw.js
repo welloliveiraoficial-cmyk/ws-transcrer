@@ -1,6 +1,6 @@
 // Suba este número a cada novo deploy. É essa mudança que faz o navegador
 // perceber que existe uma versão nova e disparar o fluxo de atualização.
-const CACHE_VERSION = 'ws-transcrer-v12';
+const CACHE_VERSION = 'ws-transcrer-v13';
 
 const APP_SHELL = [
   './',
