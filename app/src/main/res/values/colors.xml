@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#0a0a12</color>
+    <color name="bg_alt">#0e0e18</color>
+    <color name="panel_2">#191926</color>
+    <color name="line">#17FFFFFF</color>
+
+    <color name="logo_blue">#0F5A93</color>
+    <color name="deep">#0e5a94</color>
+    <color name="mid">#2f8fe0</color>
+    <color name="sky">#55d6ff</color>
+    <color name="sky_soft">#8fe7ff</color>
+
+    <color name="ink">#f6f4ff</color>
+    <color name="ink_dim">#aca8cc</color>
+    <color name="muted">#66628a</color>
+
+    <color name="danger">#ff7a72</color>
+    <color name="success">#43d9a3</color>
+</resources>
