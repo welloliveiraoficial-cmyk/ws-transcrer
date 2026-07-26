@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.*
@@ -136,7 +137,7 @@ private fun DetalheTranscricao(transcricao: Transcricao, aoVoltar: () -> Unit, a
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp).padding(top = 24.dp, bottom = 110.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = aoVoltar) {
-                Icon(androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Ink)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Ink)
             }
             Text(transcricao.nomeArquivo, color = Ink, style = MaterialTheme.typography.titleMedium, maxLines = 1)
         }
