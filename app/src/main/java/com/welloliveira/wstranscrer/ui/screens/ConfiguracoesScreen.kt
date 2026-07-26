@@ -88,10 +88,11 @@ fun ConfiguracoesScreen() {
                         escopo.launch {
                             val checker = UpdateChecker(BuildConfig.BACKEND_BASE_URL)
                             val remota = checker.verificar(BuildConfig.VERSION_CODE)
-                            mensagemUpdate = if (remota != null) {
-                                "Nova versão disponível: ${remota.versionName}"
+                            if (remota != null) {
+                                mensagemUpdate = "Nova versão disponível: ${remota.versionName}"
+                                com.welloliveira.wstranscrer.update.AtualizacaoState.versaoDisponivel.value = remota
                             } else {
-                                "Você já está na versão mais recente."
+                                mensagemUpdate = "Você já está na versão mais recente."
                             }
                         }
                     }
