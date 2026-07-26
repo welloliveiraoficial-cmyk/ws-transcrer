@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,8 +27,13 @@ jobs:
       - name: Build APK de debug
         run: gradle assembleDebug --no-daemon
 
-      - name: Enviar APK como artefato do workflow
-        uses: actions/upload-artifact@v4
+      - name: Renomear APK com numero da versao
+        run: cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/ws-transcrer-v${{ github.run_number }}.apk
+
+      - name: Publicar Release no GitHub com o APK anexado
+        uses: softprops/action-gh-release@v2
         with:
-          name: ws-transcrer-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          tag_name: v${{ github.run_number }}
+          name: "Ws Transcrer - build ${{ github.run_number }}"
+          files: app/build/outputs/apk/debug/ws-transcrer-v${{ github.run_number }}.apk
+          body: "Build automatico gerado a partir do commit ${{ github.sha }}."
