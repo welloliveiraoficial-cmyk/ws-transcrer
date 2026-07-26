@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ws Transcrer</string>
+
+    <string name="tab_enviar">Enviar</string>
+    <string name="tab_transcricoes">Transcrições</string>
+    <string name="tab_configuracoes">Configurações</string>
+
+    <string name="hero_status">pronto pra transcrever</string>
+    <string name="hero_tagline">Solte um áudio ou vídeo. Sai transcrito, em qualquer idioma, em segundos.</string>
+
+    <string name="chip_global">🌍 Global (qualquer idioma)</string>
+    <string name="chip_rapido">⚡ Rápido (segundos, não horas)</string>
+    <string name="chip_seguro">🔒 Seguro (chave protegida)</string>
+
+    <string name="btn_transcrever">Transcrever</string>
+    <string name="btn_copiar">Copiar texto</string>
+    <string name="btn_baixar">Baixar .txt</string>
+    <string name="btn_compartilhar">Compartilhar</string>
+
+    <string name="status_enviando">enviando o arquivo…</string>
+    <string name="status_processando">processando no servidor…</string>
+    <string name="status_ouvindo">ouvindo o áudio…</string>
+    <string name="status_idioma">identificando o idioma…</string>
+    <string name="status_escrevendo">escrevendo o texto…</string>
+    <string name="status_ocupado">servidor ocupado, tentando de novo (%1$d/%2$d)…</string>
+
+    <string name="busca_placeholder">Buscar por nome ou conteúdo…</string>
+    <string name="historico_vazio">Ainda não há transcrições salvas. Envie seu primeiro arquivo na aba \'Enviar\' para começar!</string>
+
+    <string name="config_secao_preferencias">Preferências</string>
+    <string name="config_tema">Tema</string>
+    <string name="config_tema_valor">🌙 Escuro</string>
+    <string name="config_idioma">Idioma do aplicativo</string>
+    <string name="config_idioma_valor">🌐 Português (Brasil)</string>
+    <string name="config_notificacoes">Notificações</string>
+
+    <string name="config_secao_historico">Histórico</string>
+    <string name="config_limpar_historico">Limpar histórico</string>
+
+    <string name="config_secao_atualizacoes">Atualizações</string>
+    <string name="config_verificar_atualizacoes">Verificar atualizações</string>
+
+    <string name="config_secao_sobre">Sobre</string>
+    <string name="config_sobre_app">Sobre o Aplicativo</string>
+    <string name="config_privacidade">Política de Privacidade</string>
+
+    <string name="sobre_texto">Ws Transcrer transcreve áudio e vídeo em texto, em qualquer idioma, direto do seu celular.\n\nVersão %1$s.\n\nA transcrição é feita pela IA do Google (Gemini). O envio do arquivo e a chave de acesso ficam protegidos por um servidor próprio — o arquivo nunca é salvo permanentemente em nenhum lugar.</string>
+
+    <string name="privacidade_texto">O Ws Transcrer foi feito pra ser simples e direto: sem cadastro, sem conta, sem rastreamento.\n\nO que acontece com o seu arquivo\nO áudio ou vídeo que você envia é transmitido para os servidores do Google (Gemini) apenas para gerar a transcrição. Ele não fica guardado nos nossos servidores depois disso.\n\nChave de API\nA chave usada para acessar a IA do Google fica guardada apenas no servidor do aplicativo, nunca no seu celular.\n\nNotificações\nSe você permitir, o app envia notificações locais quando uma transcrição termina ou quando há uma nova versão. Essas notificações não usam nenhum serviço externo de rastreamento.\n\nDados armazenados no seu aparelho\nPor enquanto, o Ws Transcrer não salva histórico de transcrições em nenhum servidor — fica só localmente no seu aparelho, até você apagar.</string>
+
+    <string name="notif_sucesso_titulo">Transcrição concluída ✅</string>
+    <string name="notif_falha_titulo">Falha na transcrição ⚠️</string>
+    <string name="notif_update_titulo">Nova versão disponível 🔄</string>
+
+    <string name="update_atualizar_agora">Atualizar Agora</string>
+    <string name="update_mais_tarde">Mais Tarde</string>
+</resources>
