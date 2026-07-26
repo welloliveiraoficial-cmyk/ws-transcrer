@@ -1,28 +1,47 @@
 package com.welloliveira.wstranscrer.ui.navigation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.welloliveira.wstranscrer.BuildConfig
+import com.welloliveira.wstranscrer.ui.components.DialogAtualizacaoSeDisponivel
 import com.welloliveira.wstranscrer.ui.components.fundoComIdentidadeVisual
 import com.welloliveira.wstranscrer.ui.screens.ConfiguracoesScreen
 import com.welloliveira.wstranscrer.ui.screens.EnviarScreen
 import com.welloliveira.wstranscrer.ui.screens.TranscricoesScreen
 import com.welloliveira.wstranscrer.ui.theme.Bg
+import com.welloliveira.wstranscrer.update.AtualizacaoState
+import com.welloliveira.wstranscrer.update.UpdateChecker
+import kotlinx.coroutines.launch
 
 @Composable
 fun WsAppRoot(idTranscricaoParaAbrir: Long?) {
     var abaAtual by remember {
         mutableStateOf(if (idTranscricaoParaAbrir != null) AbaPrincipal.TRANSCRICOES else AbaPrincipal.ENVIAR)
+    }
+
+    val context = LocalContext.current
+    val escopo = rememberCoroutineScope()
+
+    // Checa por atualização sozinho ao abrir o app (além do botão manual em Configurações).
+    LaunchedEffect(Unit) {
+        escopo.launch {
+            val checker = UpdateChecker(BuildConfig.BACKEND_BASE_URL)
+            val remota = checker.verificar(BuildConfig.VERSION_CODE)
+            if (remota != null) {
+                AtualizacaoState.versaoDisponivel.value = remota
+            }
+        }
     }
 
     Scaffold(containerColor = Bg) { paddingInterno ->
@@ -42,6 +61,8 @@ fun WsAppRoot(idTranscricaoParaAbrir: Long?) {
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 18.dp)
             )
+
+            DialogAtualizacaoSeDisponivel()
         }
     }
 }
