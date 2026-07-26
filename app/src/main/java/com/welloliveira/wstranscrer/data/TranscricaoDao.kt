@@ -1,0 +1,41 @@
+package com.welloliveira.wstranscrer.data
+
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface TranscricaoDao {
+
+    @Query("SELECT * FROM transcricoes ORDER BY criadoEm DESC")
+    fun observarTodas(): Flow<List<Transcricao>>
+
+    @Query("""
+        SELECT * FROM transcricoes
+        WHERE nomeArquivo LIKE '%' || :busca || '%' OR texto LIKE '%' || :busca || '%'
+        ORDER BY criadoEm DESC
+    """)
+    fun buscar(busca: String): Flow<List<Transcricao>>
+
+    @Insert
+    suspend fun inserir(transcricao: Transcricao): Long
+
+    @Delete
+    suspend fun excluir(transcricao: Transcricao)
+
+    @Query("DELETE FROM transcricoes")
+    suspend fun limparTudo()
+
+    @Query("SELECT COUNT(*) FROM transcricoes")
+    suspend fun contar(): Int
+
+    // Mantem só as 50 mais recentes - chamar depois de cada insercao
+    @Query("""
+        DELETE FROM transcricoes WHERE id NOT IN (
+            SELECT id FROM transcricoes ORDER BY criadoEm DESC LIMIT 50
+        )
+    """)
+    suspend fun aplicarLimite()
+}
