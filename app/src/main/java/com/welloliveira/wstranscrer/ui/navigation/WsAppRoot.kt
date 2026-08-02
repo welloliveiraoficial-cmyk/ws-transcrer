@@ -37,7 +37,7 @@ fun WsAppRoot(idTranscricaoParaAbrir: Long?) {
 
     LaunchedEffect(Unit) {
         escopo.launch {
-            val checker = UpdateChecker(BuildConfig.BACKEND_BASE_URL)
+            val checker = UpdateChecker(BuildConfig.VERSION_CHECK_BASE_URL)
             val remota = checker.verificar(BuildConfig.VERSION_CODE)
             if (remota != null) {
                 AtualizacaoState.versaoDisponivel.value = remota
