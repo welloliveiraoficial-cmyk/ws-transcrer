@@ -9,5 +9,6 @@ data class Transcricao(
     val nomeArquivo: String,
     val tamanhoBytes: Long,
     val texto: String,
-    val criadoEm: Long = System.currentTimeMillis()
+    val criadoEm: Long = System.currentTimeMillis(),
+    val favorito: Boolean = false
 )
