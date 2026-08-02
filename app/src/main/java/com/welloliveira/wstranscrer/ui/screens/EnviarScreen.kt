@@ -36,6 +36,7 @@ import com.welloliveira.wstranscrer.network.BackendApi
 import com.welloliveira.wstranscrer.notifications.NotificationHelper
 import com.welloliveira.wstranscrer.repository.StatusTranscricao
 import com.welloliveira.wstranscrer.repository.TranscricaoRepository
+import com.welloliveira.wstranscrer.ui.components.ConfeteAnimado
 import com.welloliveira.wstranscrer.ui.components.OndaSonora
 import com.welloliveira.wstranscrer.ui.theme.*
 import kotlinx.coroutines.launch
@@ -52,196 +53,215 @@ fun EnviarScreen() {
     var status by remember { mutableStateOf<StatusTranscricao?>(null) }
     var processando by remember { mutableStateOf(false) }
     var textoResultado by remember { mutableStateOf<String?>(null) }
+    var mostrarConfete by remember { mutableStateOf(false) }
 
     val seletor = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let { arquivo = lerMetadados(context, it) }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .padding(top = 32.dp, bottom = 110.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
+    Box(Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .clip(RoundedCornerShape(50))
-                .background(Panel2)
-                .padding(horizontal = 14.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(top = 32.dp, bottom = 110.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(CircleShape)
-                    .background(Success)
-            )
-            Text(
-                stringResource(R.string.hero_status),
-                color = InkDim,
-                fontFamily = FontMono,
-                fontSize = 12.sp()
-            )
-        }
-
-        Spacer(Modifier.height(20.dp))
-
-        OndaSonora(ativa = processando)
-
-        Spacer(Modifier.height(20.dp))
-
-        Text(
-            buildWordmark(),
-            style = MaterialTheme.typography.displayLarge,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Text(
-            stringResource(R.string.hero_tagline),
-            color = InkDim,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        Spacer(Modifier.height(32.dp))
-
-        Box(
-            modifier = Modifier
-                .size(82.dp)
-                .clip(CircleShape)
-                .background(Brush.linearGradient(GradienteBotaoGravar))
-                .clickable(enabled = !processando) {
-                    seletor.launch(arrayOf("audio/*", "video/*"))
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(Icons.Filled.FileUpload, contentDescription = "Selecionar arquivo", tint = Ink)
-        }
-
-        Spacer(Modifier.height(20.dp))
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ChipDestaque(stringResource(R.string.chip_global))
-        }
-        Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ChipDestaque(stringResource(R.string.chip_rapido))
-        }
-        Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ChipDestaque(stringResource(R.string.chip_seguro))
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        arquivo?.let { arq ->
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
+                    .clip(RoundedCornerShape(50))
                     .background(Panel2)
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(arq.nome, color = Ink, fontWeight = FontWeight.Bold, maxLines = 1)
-                    Text(formatarTamanho(arq.tamanho), color = Muted, fontFamily = FontMono, fontSize = 12.sp())
-                }
-                Icon(
-                    Icons.Filled.Close,
-                    contentDescription = "Remover",
-                    tint = Muted,
-                    modifier = Modifier.clickable { arquivo = null; textoResultado = null; status = null }
-                )
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    processando = true
-                    textoResultado = null
-                    escopo.launch {
-                        val arquivoLocal = copiarParaCache(context, arq.uri, arq.nome)
-                        val api = BackendApi.criar(BuildConfig.BACKEND_BASE_URL)
-                        val repo = TranscricaoRepository(api)
-                        val resultado = repo.transcrever(arquivoLocal, arq.mimeType) { novoStatus ->
-                            status = novoStatus
-                        }
-                        processando = false
-                        status = resultado
-                        when (resultado) {
-                            is StatusTranscricao.Sucesso -> {
-                                textoResultado = resultado.texto
-                                val dao = AppDatabase.get(context).transcricaoDao()
-                                val id = dao.inserir(
-                                    Transcricao(nomeArquivo = arq.nome, tamanhoBytes = arq.tamanho, texto = resultado.texto)
-                                )
-                                dao.aplicarLimite()
-                                NotificationHelper.notificarSucesso(context, arq.nome, id)
-                            }
-                            is StatusTranscricao.Falha -> {
-                                NotificationHelper.notificarFalha(context, resultado.motivo)
-                            }
-                            else -> {}
-                        }
-                    }
-                },
-                enabled = !processando,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(Brush.linearGradient(GradienteBotao), RoundedCornerShape(14.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(stringResource(R.string.btn_transcrever), color = Ink, fontWeight = FontWeight.Bold)
-                }
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(Success)
+                )
+                Text(
+                    stringResource(R.string.hero_status),
+                    color = InkDim,
+                    fontFamily = FontMono,
+                    fontSize = 12.sp()
+                )
             }
-        }
 
-        status?.let { s ->
             Spacer(Modifier.height(20.dp))
-            if (processando) {
-                OndaSonora(numeroDeBarras = 4, alturaMaxima = 22.dp, alturaMinima = 6.dp, larguraBarra = 4.dp, ativa = true)
-                Spacer(Modifier.height(10.dp))
-            }
-            Text(textoStatus(s), color = InkDim, fontFamily = FontMono, fontSize = 13.sp())
-        }
 
-        textoResultado?.let { texto ->
+            OndaSonora(ativa = processando)
+
             Spacer(Modifier.height(20.dp))
-            Column(
+
+            Text(
+                buildWordmark(),
+                style = MaterialTheme.typography.displayLarge,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                stringResource(R.string.hero_tagline),
+                color = InkDim,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(Panel2)
-                    .padding(16.dp)
+                    .size(82.dp)
+                    .clip(CircleShape)
+                    .background(Brush.linearGradient(GradienteBotaoGravar))
+                    .clickable(enabled = !processando) {
+                        seletor.launch(arrayOf("audio/*", "video/*"))
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                Text(texto, color = Ink, style = MaterialTheme.typography.bodyMedium)
-                Spacer(Modifier.height(16.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    OutlinedButton(onClick = {
-                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        clipboard.setPrimaryClip(ClipData.newPlainText("Transcrição", texto))
-                    }) { Text(stringResource(R.string.btn_copiar)) }
+                Icon(Icons.Filled.FileUpload, contentDescription = "Selecionar arquivo", tint = Ink)
+            }
 
-                    OutlinedButton(onClick = {
-                        compartilharTexto(context, texto)
-                    }) { Text(stringResource(R.string.btn_compartilhar)) }
+            Spacer(Modifier.height(20.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ChipDestaque(stringResource(R.string.chip_global))
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ChipDestaque(stringResource(R.string.chip_rapido))
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ChipDestaque(stringResource(R.string.chip_seguro))
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            arquivo?.let { arq ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Panel2)
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(arq.nome, color = Ink, fontWeight = FontWeight.Bold, maxLines = 1)
+                        Text(formatarTamanho(arq.tamanho), color = Muted, fontFamily = FontMono, fontSize = 12.sp())
+                    }
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = "Remover",
+                        tint = Muted,
+                        modifier = Modifier.clickable { arquivo = null; textoResultado = null; status = null }
+                    )
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        processando = true
+                        textoResultado = null
+                        escopo.launch {
+                            val arquivoLocal = copiarParaCache(context, arq.uri, arq.nome)
+                            val api = BackendApi.criar(BuildConfig.BACKEND_BASE_URL)
+                            val repo = TranscricaoRepository(api)
+                            val resultado = repo.transcrever(arquivoLocal, arq.mimeType) { novoStatus ->
+                                status = novoStatus
+                            }
+                            processando = false
+                            status = resultado
+                            when (resultado) {
+                                is StatusTranscricao.Sucesso -> {
+                                    textoResultado = resultado.texto
+                                    val dao = AppDatabase.get(context).transcricaoDao()
+                                    val id = dao.inserir(
+                                        Transcricao(nomeArquivo = arq.nome, tamanhoBytes = arq.tamanho, texto = resultado.texto)
+                                    )
+                                    dao.aplicarLimite()
+                                    NotificationHelper.notificarSucesso(context, arq.nome, id)
+                                    mostrarConfete = true
+                                }
+                                is StatusTranscricao.Falha -> {
+                                    NotificationHelper.notificarFalha(context, resultado.motivo)
+                                }
+                                else -> {}
+                            }
+                        }
+                    },
+                    enabled = !processando,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Brush.linearGradient(GradienteBotao), RoundedCornerShape(14.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(stringResource(R.string.btn_transcrever), color = Ink, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            status?.let { s ->
+                Spacer(Modifier.height(20.dp))
+                if (processando) {
+                    OndaSonora(numeroDeBarras = 4, alturaMaxima = 22.dp, alturaMinima = 6.dp, larguraBarra = 4.dp, ativa = true)
+                    Spacer(Modifier.height(10.dp))
+                }
+                Text(textoStatus(s), color = InkDim, fontFamily = FontMono, fontSize = 13.sp())
+
+                if (s is StatusTranscricao.EnviandoProgresso) {
+                    Spacer(Modifier.height(10.dp))
+                    LinearProgressIndicator(
+                        progress = { s.percentual / 100f },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(50)),
+                        color = Sky,
+                        trackColor = Panel2
+                    )
+                }
+            }
+
+            textoResultado?.let { texto ->
+                Spacer(Modifier.height(20.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Panel2)
+                        .padding(16.dp)
+                ) {
+                    Text(texto, color = Ink, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(16.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        OutlinedButton(onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(ClipData.newPlainText("Transcrição", texto))
+                        }) { Text(stringResource(R.string.btn_copiar)) }
+
+                        OutlinedButton(onClick = {
+                            compartilharTexto(context, texto)
+                        }) { Text(stringResource(R.string.btn_compartilhar)) }
+                    }
                 }
             }
         }
+
+        ConfeteAnimado(ativo = mostrarConfete) { mostrarConfete = false }
     }
 }
 
@@ -266,6 +286,7 @@ private fun buildWordmark(): androidx.compose.ui.text.AnnotatedString =
 
 private fun textoStatus(status: StatusTranscricao): String = when (status) {
     StatusTranscricao.Enviando -> "enviando o arquivo…"
+    is StatusTranscricao.EnviandoProgresso -> "enviando o arquivo… ${status.percentual}%"
     StatusTranscricao.Processando -> "processando no servidor…"
     StatusTranscricao.Ouvindo -> "ouvindo o áudio…"
     StatusTranscricao.IdentificandoIdioma -> "identificando o idioma…"
