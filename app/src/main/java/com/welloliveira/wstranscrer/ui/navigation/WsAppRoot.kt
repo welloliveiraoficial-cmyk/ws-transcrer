@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.welloliveira.wstranscrer.BuildConfig
 import com.welloliveira.wstranscrer.ui.components.DialogAtualizacaoSeDisponivel
+import com.welloliveira.wstranscrer.ui.components.SplashAnimado
 import com.welloliveira.wstranscrer.ui.components.fundoComIdentidadeVisual
 import com.welloliveira.wstranscrer.ui.screens.ConfiguracoesScreen
 import com.welloliveira.wstranscrer.ui.screens.EnviarScreen
@@ -46,26 +47,34 @@ fun WsAppRoot(idTranscricaoParaAbrir: Long?) {
         }
     }
 
-    Scaffold(containerColor = Bg) { paddingInterno ->
-        Box(modifier = Modifier.fillMaxSize().fundoComIdentidadeVisual()) {
-            Box(modifier = Modifier.padding(paddingInterno).fillMaxSize()) {
-                when (abaAtual) {
-                    AbaPrincipal.ENVIAR -> EnviarScreen()
-                    AbaPrincipal.TRANSCRICOES -> TranscricoesScreen(idAbrirInicialmente = idTranscricaoParaAbrir)
-                    AbaPrincipal.CONFIGURACOES -> ConfiguracoesScreen()
+    var mostrarSplash by remember { mutableStateOf(true) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(containerColor = Bg) { paddingInterno ->
+            Box(modifier = Modifier.fillMaxSize().fundoComIdentidadeVisual()) {
+                Box(modifier = Modifier.padding(paddingInterno).fillMaxSize()) {
+                    when (abaAtual) {
+                        AbaPrincipal.ENVIAR -> EnviarScreen()
+                        AbaPrincipal.TRANSCRICOES -> TranscricoesScreen(idAbrirInicialmente = idTranscricaoParaAbrir)
+                        AbaPrincipal.CONFIGURACOES -> ConfiguracoesScreen()
+                    }
                 }
+
+                BottomDock(
+                    abaAtual = abaAtual,
+                    aoSelecionar = { abaAtual = it },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 18.dp)
+                )
+
+                DialogAtualizacaoSeDisponivel()
             }
+        }
 
-            BottomDock(
-                abaAtual = abaAtual,
-                aoSelecionar = { abaAtual = it },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .padding(bottom = 18.dp)
-            )
-
-            DialogAtualizacaoSeDisponivel()
+        if (mostrarSplash) {
+            SplashAnimado(aoFinalizar = { mostrarSplash = false })
         }
     }
 }
