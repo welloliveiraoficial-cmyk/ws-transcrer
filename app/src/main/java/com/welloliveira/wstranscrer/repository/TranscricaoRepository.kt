@@ -48,7 +48,7 @@ class TranscricaoRepository(
             var fileUri: String? = resultadoUpload.uri
             var fileMime: String? = mimeType
 
-            while (estado == "PROCESSING" && tentativasProcessamento < 40) {
+            while (estado == "PROCESSING" && tentativasProcessamento < 200) {
                 delay(3000)
                 aoAtualizarStatus(StatusTranscricao.Ouvindo)
                 val arquivoGoogle = api.checkFile(CheckFileRequest(name = nomeGoogle))
