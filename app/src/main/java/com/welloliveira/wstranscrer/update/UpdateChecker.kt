@@ -17,7 +17,7 @@ data class VersaoRemota(
 )
 
 interface VersionApi {
-    @GET("/version.json")
+    @GET("version.json")
     suspend fun buscarVersao(): VersaoRemota
 }
 
@@ -29,7 +29,6 @@ class UpdateChecker(baseUrl: String) {
         .build()
         .create(VersionApi::class.java)
 
-    /** Retorna a VersaoRemota se houver uma versão mais nova que [versionCodeInstalado], senão null. */
     suspend fun verificar(versionCodeInstalado: Int): VersaoRemota? = withContext(Dispatchers.IO) {
         try {
             val remota = api.buscarVersao()
