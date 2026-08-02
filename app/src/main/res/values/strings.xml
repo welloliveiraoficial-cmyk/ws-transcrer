@@ -33,4 +33,27 @@
     <string name="config_tema">Tema</string>
     <string name="config_tema_valor">🌙 Escuro</string>
     <string name="config_idioma">Idioma do aplicativo</string>
-    <string name="conf
+    <string name="config_idioma_valor">🌐 Português (Brasil)</string>
+    <string name="config_notificacoes">Notificações</string>
+
+    <string name="config_secao_historico">Histórico</string>
+    <string name="config_limpar_historico">Limpar histórico</string>
+
+    <string name="config_secao_atualizacoes">Atualizações</string>
+    <string name="config_verificar_atualizacoes">Verificar atualizações</string>
+
+    <string name="config_secao_sobre">Sobre</string>
+    <string name="config_sobre_app">Sobre o Aplicativo</string>
+    <string name="config_privacidade">Política de Privacidade</string>
+
+    <string name="sobre_texto">Ws Transcrer transcreve áudio e vídeo em texto, em qualquer idioma, direto do seu celular.\n\nVersão %1$s.\n\nA transcrição é feita pela IA do Google (Gemini). O envio do arquivo e a chave de acesso ficam protegidos por um servidor próprio — o arquivo nunca é salvo permanentemente em nenhum lugar.</string>
+
+    <string name="privacidade_texto">O Ws Transcrer foi feito pra ser simples e direto: sem cadastro, sem conta, sem rastreamento.\n\nO que acontece com o seu arquivo\nO áudio ou vídeo que você envia é transmitido para os servidores do Google (Gemini) apenas para gerar a transcrição. Ele não fica guardado nos nossos servidores depois disso.\n\nChave de API\nA chave usada para acessar a IA do Google fica guardada apenas no servidor do aplicativo, nunca no seu celular.\n\nNotificações\nSe você permitir, o app envia notificações locais quando uma transcrição termina ou quando há uma nova versão. Essas notificações não usam nenhum serviço externo de rastreamento.\n\nDados armazenados no seu aparelho\nPor enquanto, o Ws Transcrer não salva histórico de transcrições em nenhum servidor — fica só localmente no seu aparelho, até você apagar.</string>
+
+    <string name="notif_sucesso_titulo">Transcrição concluída ✅</string>
+    <string name="notif_falha_titulo">Falha na transcrição ⚠️</string>
+    <string name="notif_update_titulo">Nova versão disponível 🔄</string>
+
+    <string name="update_atualizar_agora">Atualizar Agora</string>
+    <string name="update_mais_tarde">Mais Tarde</string>
+</resources>
