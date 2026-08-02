@@ -16,6 +16,7 @@ android {
         versionName = "1.0.0"
 
         buildConfigField("String", "BACKEND_BASE_URL", "\"https://ws-transcrer.vercel.app\"")
+        buildConfigField("String", "VERSION_CHECK_BASE_URL", "\"https://raw.githubusercontent.com/welloliveiraoficial-cmyk/ws-transcrer/main/\"")
     }
 
     buildTypes {
