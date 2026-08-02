@@ -18,7 +18,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.graphicsLayer
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +54,7 @@ fun SplashAnimado(aoFinalizar: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .graphicsLayer { alpha = alphaSaida.value }
+            .alpha(alphaSaida.value)
             .background(Brush.verticalGradient(listOf(Deep, Bg)))
     ) {
         Column(
@@ -66,11 +67,8 @@ fun SplashAnimado(aoFinalizar: () -> Unit) {
                 contentDescription = null,
                 modifier = Modifier
                     .size(150.dp)
-                    .graphicsLayer {
-                        scaleX = escalaLogo.value
-                        scaleY = escalaLogo.value
-                        alpha = alphaLogo.value
-                    }
+                    .scale(escalaLogo.value)
+                    .alpha(alphaLogo.value)
             )
 
             Spacer(Modifier.height(18.dp))
@@ -85,7 +83,7 @@ fun SplashAnimado(aoFinalizar: () -> Unit) {
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.graphicsLayer { alpha = alphaTexto.value }
+                modifier = Modifier.alpha(alphaTexto.value)
             )
 
             Spacer(Modifier.height(6.dp))
@@ -95,7 +93,7 @@ fun SplashAnimado(aoFinalizar: () -> Unit) {
                 color = InkDim,
                 fontSize = 13.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.graphicsLayer { alpha = alphaTexto.value }
+                modifier = Modifier.alpha(alphaTexto.value)
             )
         }
     }
