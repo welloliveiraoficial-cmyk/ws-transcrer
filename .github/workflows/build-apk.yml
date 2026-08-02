@@ -62,7 +62,14 @@ jobs:
           git commit -m "Atualizar version.json para build ${{ github.run_number }} [skip ci]" || echo "Nada para commitar"
 
           tentativas=0
-          ate_publicar=false
-          while [ $tentativas -lt 5 ] && [ "$ate_publicar" = false ]; do
+          publicado=false
+          while [ $tentativas -lt 5 ] && [ "$publicado" = false ]; do
             if git push; then
-              ate_
+              publicado=true
+            else
+              tentativas=$((tentativas + 1))
+              echo "Push falhou, tentando novamente ($tentativas/5)..."
+              git pull --rebase
+              sleep 2
+            fi
+          done
