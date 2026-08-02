@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import com.welloliveira.wstranscrer.BuildConfig
 import com.welloliveira.wstranscrer.R
 import com.welloliveira.wstranscrer.data.AppDatabase
+import com.welloliveira.wstranscrer.ui.components.CabecalhoTecnico
+import com.welloliveira.wstranscrer.ui.components.IconeComMoldura
+import com.welloliveira.wstranscrer.ui.components.MarcadorSecao
 import com.welloliveira.wstranscrer.ui.theme.*
 import com.welloliveira.wstranscrer.update.UpdateChecker
 import kotlinx.coroutines.launch
@@ -59,7 +62,10 @@ fun ConfiguracoesScreen() {
                     .padding(horizontal = 20.dp)
                     .padding(top = 24.dp, bottom = 110.dp)
             ) {
-                Text(stringResource(R.string.tab_configuracoes), style = MaterialTheme.typography.headlineMedium, color = Ink)
+                CabecalhoTecnico(
+                    titulo = stringResource(R.string.tab_configuracoes),
+                    status = "painel de controle"
+                )
                 Spacer(Modifier.height(20.dp))
 
                 SecaoTitulo(stringResource(R.string.config_secao_preferencias))
@@ -143,13 +149,9 @@ fun ConfiguracoesScreen() {
 
 @Composable
 private fun SecaoTitulo(texto: String) {
-    Text(
-        texto.uppercase(),
-        color = Muted,
-        fontFamily = FontMono,
-        fontSize = androidx.compose.ui.unit.TextUnit(12f, androidx.compose.ui.unit.TextUnitType.Sp),
-        modifier = Modifier.padding(bottom = 8.dp, top = 4.dp)
-    )
+    Box(modifier = Modifier.padding(bottom = 8.dp, top = 4.dp)) {
+        MarcadorSecao(texto)
+    }
 }
 
 @Composable
@@ -171,15 +173,7 @@ private fun LinhaConfig(
             .padding(bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Panel),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(icone, contentDescription = null, tint = Sky, modifier = Modifier.size(18.dp))
-        }
+        IconeComMoldura(icone = icone, tint = Sky)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(titulo, color = Ink, fontWeight = FontWeight.Bold)
