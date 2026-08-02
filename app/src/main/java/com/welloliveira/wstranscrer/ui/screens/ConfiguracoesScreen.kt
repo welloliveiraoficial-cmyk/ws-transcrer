@@ -21,9 +21,6 @@ import androidx.compose.ui.unit.dp
 import com.welloliveira.wstranscrer.BuildConfig
 import com.welloliveira.wstranscrer.R
 import com.welloliveira.wstranscrer.data.AppDatabase
-import com.welloliveira.wstranscrer.ui.components.CabecalhoTecnico
-import com.welloliveira.wstranscrer.ui.components.IconeComMoldura
-import com.welloliveira.wstranscrer.ui.components.MarcadorSecao
 import com.welloliveira.wstranscrer.ui.theme.*
 import com.welloliveira.wstranscrer.update.UpdateChecker
 import kotlinx.coroutines.launch
@@ -62,10 +59,7 @@ fun ConfiguracoesScreen() {
                     .padding(horizontal = 20.dp)
                     .padding(top = 24.dp, bottom = 110.dp)
             ) {
-                CabecalhoTecnico(
-                    titulo = stringResource(R.string.tab_configuracoes),
-                    status = "painel de controle"
-                )
+                Text(stringResource(R.string.tab_configuracoes), style = MaterialTheme.typography.headlineMedium, color = Ink)
                 Spacer(Modifier.height(20.dp))
 
                 SecaoTitulo(stringResource(R.string.config_secao_preferencias))
@@ -149,9 +143,13 @@ fun ConfiguracoesScreen() {
 
 @Composable
 private fun SecaoTitulo(texto: String) {
-    Box(modifier = Modifier.padding(bottom = 8.dp, top = 4.dp)) {
-        MarcadorSecao(texto)
-    }
+    Text(
+        texto.uppercase(),
+        color = Muted,
+        fontFamily = FontMono,
+        fontSize = androidx.compose.ui.unit.TextUnit(12f, androidx.compose.ui.unit.TextUnitType.Sp),
+        modifier = Modifier.padding(bottom = 8.dp, top = 4.dp)
+    )
 }
 
 @Composable
@@ -173,7 +171,15 @@ private fun LinhaConfig(
             .padding(bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconeComMoldura(icone = icone, tint = Sky)
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Panel),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icone, contentDescription = null, tint = Sky, modifier = Modifier.size(18.dp))
+        }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(titulo, color = Ink, fontWeight = FontWeight.Bold)
@@ -199,9 +205,7 @@ private fun TelaTexto(titulo: String, texto: String, aoVoltar: () -> Unit) {
             IconButton(onClick = aoVoltar) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Ink)
             }
-            Text(titulo, color = Ink, style = MaterialTheme.typography.titleMedium)
+            Text(texto, color = InkDim, style = MaterialTheme.typography.bodyMedium)
         }
-        Spacer(Modifier.height(16.dp))
-        Text(texto, color = InkDim, style = MaterialTheme.typography.bodyMedium)
     }
 }
