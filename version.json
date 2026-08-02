@@ -1,6 +1,6 @@
 {
-  "versionCode": 1,
-  "versionName": "1.0.0",
-  "changelog": ["Primeira versão do Ws Transcrer"],
-  "apkUrl": "https://github.com/welloliveiraoficial-cmyk/ws-transcrer/releases/download/v1/ws-transcrer-v1.apk"
+  "versionCode": 46,
+  "versionName": "1.0.46",
+  "changelog": ["Build automatico a partir do commit 4ed93871a5c56e1dfe996667d2791199178ed9d4"],
+  "apkUrl": "https://github.com/welloliveiraoficial-cmyk/ws-transcrer/releases/download/v46/ws-transcrer-v46.apk"
 }
