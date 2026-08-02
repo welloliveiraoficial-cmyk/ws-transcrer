@@ -3,10 +3,12 @@ package com.welloliveira.wstranscrer.network
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody
+import okio.BufferedSink
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -17,6 +19,36 @@ data class ResultadoUpload(
     val uri: String? = null,
     val state: String? = null
 )
+
+/** RequestBody que lê o arquivo em blocos e reporta o percentual já enviado. */
+private class ProgressRequestBody(
+    private val arquivo: File,
+    private val mediaType: MediaType?,
+    private val aoProgresso: (Int) -> Unit
+) : RequestBody() {
+    override fun contentType(): MediaType? = mediaType
+    override fun contentLength(): Long = arquivo.length()
+
+    override fun writeTo(sink: BufferedSink) {
+        val total = contentLength().coerceAtLeast(1L)
+        var enviado = 0L
+        var ultimoPercentual = -1
+        arquivo.inputStream().use { entrada ->
+            val buffer = ByteArray(8192)
+            while (true) {
+                val lidos = entrada.read(buffer)
+                if (lidos == -1) break
+                sink.write(buffer, 0, lidos)
+                enviado += lidos
+                val percentual = ((enviado * 100) / total).toInt().coerceIn(0, 100)
+                if (percentual != ultimoPercentual) {
+                    ultimoPercentual = percentual
+                    aoProgresso(percentual)
+                }
+            }
+        }
+    }
+}
 
 /**
  * Envia os bytes do arquivo direto pra URL de upload retornada pelo /api/start-upload.
@@ -31,9 +63,14 @@ class GeminiUploadClient {
         .readTimeout(2, TimeUnit.MINUTES)
         .build()
 
-    suspend fun enviarArquivo(uploadUrl: String, arquivo: File, mimeType: String): ResultadoUpload =
+    suspend fun enviarArquivo(
+        uploadUrl: String,
+        arquivo: File,
+        mimeType: String,
+        aoProgresso: (Int) -> Unit = {}
+    ): ResultadoUpload =
         withContext(Dispatchers.IO) {
-            val corpo = arquivo.asRequestBody(mimeType.toMediaTypeOrNull())
+            val corpo = ProgressRequestBody(arquivo, mimeType.toMediaTypeOrNull(), aoProgresso)
             val request = Request.Builder()
                 .url(uploadUrl)
                 .addHeader("X-Goog-Upload-Offset", "0")
