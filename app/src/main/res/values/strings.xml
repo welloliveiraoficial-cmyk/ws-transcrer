@@ -16,6 +16,7 @@
     <string name="btn_transcrever">Transcrever</string>
     <string name="btn_copiar">Copiar texto</string>
     <string name="btn_baixar">Baixar .txt</string>
+    <string name="btn_exportar_pdf">Exportar PDF</string>
     <string name="btn_compartilhar">Compartilhar</string>
 
     <string name="status_enviando">enviando o arquivo…</string>
