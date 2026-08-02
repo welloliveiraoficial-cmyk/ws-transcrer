@@ -5,11 +5,16 @@ import com.welloliveira.wstranscrer.network.CheckFileRequest
 import com.welloliveira.wstranscrer.network.GeminiUploadClient
 import com.welloliveira.wstranscrer.network.StartUploadRequest
 import com.welloliveira.wstranscrer.network.TranscribeRequest
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 
 sealed class StatusTranscricao {
     object Enviando : StatusTranscricao()
+    data class EnviandoProgresso(val percentual: Int) : StatusTranscricao()
     object Processando : StatusTranscricao()
     object Ouvindo : StatusTranscricao()
     object IdentificandoIdioma : StatusTranscricao()
@@ -34,7 +39,24 @@ class TranscricaoRepository(
                 StartUploadRequest(arquivo.name, mimeType, arquivo.length())
             )
 
-            val resultadoUpload = uploadClient.enviarArquivo(sessao.uploadUrl, arquivo, mimeType)
+            // Envia o arquivo reportando o percentual em tempo real, sem travar
+            // as outras atualizações de status (roda numa coroutine filha que é
+            // cancelada assim que o upload termina).
+            val progressoAtual = AtomicInteger(0)
+            val resultadoUpload = coroutineScope {
+                val jobProgresso = launch {
+                    while (isActive) {
+                        aoAtualizarStatus(StatusTranscricao.EnviandoProgresso(progressoAtual.get()))
+                        delay(150)
+                    }
+                }
+                val resultado = uploadClient.enviarArquivo(sessao.uploadUrl, arquivo, mimeType) { percentual ->
+                    progressoAtual.set(percentual)
+                }
+                jobProgresso.cancel()
+                resultado
+            }
+
             if (!resultadoUpload.sucesso) {
                 return StatusTranscricao.Falha("Não foi possível enviar o arquivo para o Google.")
             }
