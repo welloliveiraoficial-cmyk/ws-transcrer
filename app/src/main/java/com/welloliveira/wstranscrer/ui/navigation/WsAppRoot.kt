@@ -1,5 +1,10 @@
 package com.welloliveira.wstranscrer.ui.navigation
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -53,10 +58,18 @@ fun WsAppRoot(idTranscricaoParaAbrir: Long?) {
         Scaffold(containerColor = Bg) { paddingInterno ->
             Box(modifier = Modifier.fillMaxSize().fundoComIdentidadeVisual()) {
                 Box(modifier = Modifier.padding(paddingInterno).fillMaxSize()) {
-                    when (abaAtual) {
-                        AbaPrincipal.ENVIAR -> EnviarScreen()
-                        AbaPrincipal.TRANSCRICOES -> TranscricoesScreen(idAbrirInicialmente = idTranscricaoParaAbrir)
-                        AbaPrincipal.CONFIGURACOES -> ConfiguracoesScreen()
+                    AnimatedContent(
+                        targetState = abaAtual,
+                        transitionSpec = {
+                            fadeIn(tween(280)) togetherWith fadeOut(tween(180))
+                        },
+                        label = "troca_de_aba"
+                    ) { aba ->
+                        when (aba) {
+                            AbaPrincipal.ENVIAR -> EnviarScreen()
+                            AbaPrincipal.TRANSCRICOES -> TranscricoesScreen(idAbrirInicialmente = idTranscricaoParaAbrir)
+                            AbaPrincipal.CONFIGURACOES -> ConfiguracoesScreen()
+                        }
                     }
                 }
 
