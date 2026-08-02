@@ -1,5 +1,9 @@
 package com.welloliveira.wstranscrer.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -134,6 +138,9 @@ private fun ItemTranscricao(item: Transcricao, aoClicar: () -> Unit, aoExcluir: 
 @Composable
 private fun DetalheTranscricao(transcricao: Transcricao, aoVoltar: () -> Unit, aoExcluir: () -> Unit) {
     val context = LocalContext.current
+    var visivel by remember { mutableStateOf(false) }
+    LaunchedEffect(transcricao.id) { visivel = true }
+
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp).padding(top = 24.dp, bottom = 110.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = aoVoltar) {
@@ -142,15 +149,22 @@ private fun DetalheTranscricao(transcricao: Transcricao, aoVoltar: () -> Unit, a
             Text(transcricao.nomeArquivo, color = Ink, style = MaterialTheme.typography.titleMedium, maxLines = 1)
         }
         Spacer(Modifier.height(16.dp))
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .background(Panel2)
-                .padding(16.dp)
+
+        AnimatedVisibility(
+            visible = visivel,
+            enter = fadeIn(tween(500)) + slideInVertically(tween(500)) { it / 6 }
         ) {
-            Text(transcricao.texto, color = Ink, style = MaterialTheme.typography.bodyMedium)
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Panel2)
+                    .padding(16.dp)
+            ) {
+                Text(transcricao.texto, color = Ink, style = MaterialTheme.typography.bodyMedium)
+            }
         }
+
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(onClick = {
