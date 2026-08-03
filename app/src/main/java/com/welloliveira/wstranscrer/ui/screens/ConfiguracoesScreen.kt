@@ -1,7 +1,17 @@
 package com.welloliveira.wstranscrer.ui.screens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,102 +51,108 @@ fun ConfiguracoesScreen() {
         totalSalvas = AppDatabase.get(context).transcricaoDao().contar()
     }
 
-    when (tela) {
-        TelaConfig.SOBRE -> TelaTexto(
-            titulo = stringResource(R.string.config_sobre_app),
-            texto = stringResource(R.string.sobre_texto, BuildConfig.VERSION_NAME),
-            aoVoltar = { tela = TelaConfig.PRINCIPAL }
-        )
-        TelaConfig.PRIVACIDADE -> TelaTexto(
-            titulo = stringResource(R.string.config_privacidade),
-            texto = stringResource(R.string.privacidade_texto),
-            aoVoltar = { tela = TelaConfig.PRINCIPAL }
-        )
-        TelaConfig.PRINCIPAL -> {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp)
-                    .padding(top = 24.dp, bottom = 110.dp)
-            ) {
-                Text(stringResource(R.string.tab_configuracoes), style = MaterialTheme.typography.headlineMedium, color = Ink)
-                Spacer(Modifier.height(20.dp))
+    AnimatedContent(
+        targetState = tela,
+        transitionSpec = { fadeIn(tween(250)) togetherWith fadeOut(tween(150)) },
+        label = "troca_tela_config"
+    ) { telaAtual ->
+        when (telaAtual) {
+            TelaConfig.SOBRE -> TelaTexto(
+                titulo = stringResource(R.string.config_sobre_app),
+                texto = stringResource(R.string.sobre_texto, BuildConfig.VERSION_NAME),
+                aoVoltar = { tela = TelaConfig.PRINCIPAL }
+            )
+            TelaConfig.PRIVACIDADE -> TelaTexto(
+                titulo = stringResource(R.string.config_privacidade),
+                texto = stringResource(R.string.privacidade_texto),
+                aoVoltar = { tela = TelaConfig.PRINCIPAL }
+            )
+            TelaConfig.PRINCIPAL -> {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 20.dp)
+                        .padding(top = 24.dp, bottom = 110.dp)
+                ) {
+                    Text(stringResource(R.string.tab_configuracoes), style = MaterialTheme.typography.headlineMedium, color = Ink)
+                    Spacer(Modifier.height(20.dp))
 
-                SecaoTitulo(stringResource(R.string.config_secao_preferencias))
-                LinhaConfig(icone = Icons.Filled.DarkMode, titulo = stringResource(R.string.config_tema), subtitulo = stringResource(R.string.config_tema_valor))
-                LinhaConfig(icone = Icons.Filled.Language, titulo = stringResource(R.string.config_idioma), subtitulo = stringResource(R.string.config_idioma_valor))
-                LinhaConfig(icone = Icons.Filled.Notifications, titulo = stringResource(R.string.config_notificacoes), subtitulo = "Ativadas")
+                    SecaoTitulo(stringResource(R.string.config_secao_preferencias))
+                    LinhaConfig(icone = Icons.Filled.DarkMode, titulo = stringResource(R.string.config_tema), subtitulo = stringResource(R.string.config_tema_valor))
+                    LinhaConfig(icone = Icons.Filled.Language, titulo = stringResource(R.string.config_idioma), subtitulo = stringResource(R.string.config_idioma_valor))
+                    LinhaConfig(icone = Icons.Filled.Notifications, titulo = stringResource(R.string.config_notificacoes), subtitulo = "Ativadas")
 
-                Spacer(Modifier.height(20.dp))
-                SecaoTitulo(stringResource(R.string.config_secao_historico))
-                LinhaConfig(
-                    icone = Icons.Filled.Delete,
-                    titulo = stringResource(R.string.config_limpar_historico),
-                    subtitulo = "$totalSalvas transcrições salvas",
-                    clicavel = true,
-                    aoClicar = { mostrarConfirmarLimpeza = true }
-                )
+                    Spacer(Modifier.height(20.dp))
+                    SecaoTitulo(stringResource(R.string.config_secao_historico))
+                    LinhaConfig(
+                        icone = Icons.Filled.Delete,
+                        titulo = stringResource(R.string.config_limpar_historico),
+                        subtitulo = "$totalSalvas transcrições salvas",
+                        clicavel = true,
+                        aoClicar = { mostrarConfirmarLimpeza = true }
+                    )
 
-                Spacer(Modifier.height(20.dp))
-                SecaoTitulo(stringResource(R.string.config_secao_atualizacoes))
-                LinhaConfig(
-                    icone = Icons.Filled.Refresh,
-                    titulo = stringResource(R.string.config_verificar_atualizacoes),
-                    subtitulo = mensagemUpdate ?: "Versão instalada: ${BuildConfig.VERSION_NAME}",
-                    clicavel = true,
-                    aoClicar = {
-                        escopo.launch {
-                            val checker = UpdateChecker(BuildConfig.VERSION_CHECK_BASE_URL)
-                            val remota = checker.verificar(BuildConfig.VERSION_CODE)
-                            if (remota != null) {
-                                mensagemUpdate = "Nova versão disponível: ${remota.versionName}"
-                                com.welloliveira.wstranscrer.update.AtualizacaoState.versaoDisponivel.value = remota
-                            } else {
-                                mensagemUpdate = "Você já está na versão mais recente."
+                    Spacer(Modifier.height(20.dp))
+                    SecaoTitulo(stringResource(R.string.config_secao_atualizacoes))
+                    LinhaConfig(
+                        icone = Icons.Filled.Refresh,
+                        titulo = stringResource(R.string.config_verificar_atualizacoes),
+                        subtitulo = mensagemUpdate ?: "Versão instalada: ${BuildConfig.VERSION_NAME}",
+                        clicavel = true,
+                        aoClicar = {
+                            escopo.launch {
+                                val checker = UpdateChecker(BuildConfig.VERSION_CHECK_BASE_URL)
+                                val remota = checker.verificar(BuildConfig.VERSION_CODE)
+                                if (remota != null) {
+                                    mensagemUpdate = "Nova versão disponível: ${remota.versionName}"
+                                    com.welloliveira.wstranscrer.update.AtualizacaoState.versaoDisponivel.value = remota
+                                } else {
+                                    mensagemUpdate = "Você já está na versão mais recente."
+                                }
                             }
                         }
-                    }
-                )
+                    )
 
-                Spacer(Modifier.height(20.dp))
-                SecaoTitulo(stringResource(R.string.config_secao_sobre))
-                LinhaConfig(
-                    icone = Icons.Filled.Info,
-                    titulo = stringResource(R.string.config_sobre_app),
-                    subtitulo = null,
-                    clicavel = true,
-                    seta = true,
-                    aoClicar = { tela = TelaConfig.SOBRE }
-                )
-                LinhaConfig(
-                    icone = Icons.Filled.Shield,
-                    titulo = stringResource(R.string.config_privacidade),
-                    subtitulo = null,
-                    clicavel = true,
-                    seta = true,
-                    aoClicar = { tela = TelaConfig.PRIVACIDADE }
-                )
-            }
+                    Spacer(Modifier.height(20.dp))
+                    SecaoTitulo(stringResource(R.string.config_secao_sobre))
+                    LinhaConfig(
+                        icone = Icons.Filled.Info,
+                        titulo = stringResource(R.string.config_sobre_app),
+                        subtitulo = null,
+                        clicavel = true,
+                        seta = true,
+                        aoClicar = { tela = TelaConfig.SOBRE }
+                    )
+                    LinhaConfig(
+                        icone = Icons.Filled.Shield,
+                        titulo = stringResource(R.string.config_privacidade),
+                        subtitulo = null,
+                        clicavel = true,
+                        seta = true,
+                        aoClicar = { tela = TelaConfig.PRIVACIDADE }
+                    )
+                }
 
-            if (mostrarConfirmarLimpeza) {
-                AlertDialog(
-                    onDismissRequest = { mostrarConfirmarLimpeza = false },
-                    title = { Text("Limpar histórico?") },
-                    text = { Text("Isso vai apagar todas as $totalSalvas transcrições salvas no aparelho. Essa ação não pode ser desfeita.") },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            escopo.launch {
-                                AppDatabase.get(context).transcricaoDao().limparTudo()
-                                totalSalvas = 0
-                            }
-                            mostrarConfirmarLimpeza = false
-                        }) { Text("Apagar tudo", color = Danger) }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { mostrarConfirmarLimpeza = false }) { Text("Cancelar") }
-                    }
-                )
+                if (mostrarConfirmarLimpeza) {
+                    AlertDialog(
+                        onDismissRequest = { mostrarConfirmarLimpeza = false },
+                        title = { Text("Limpar histórico?") },
+                        text = { Text("Isso vai apagar todas as $totalSalvas transcrições salvas no aparelho. Essa ação não pode ser desfeita.") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                escopo.launch {
+                                    AppDatabase.get(context).transcricaoDao().limparTudo()
+                                    totalSalvas = 0
+                                }
+                                mostrarConfirmarLimpeza = false
+                            }) { Text("Apagar tudo", color = Danger) }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { mostrarConfirmarLimpeza = false }) { Text("Cancelar") }
+                        }
+                    )
+                }
             }
         }
     }
@@ -161,12 +178,24 @@ private fun LinhaConfig(
     seta: Boolean = false,
     aoClicar: () -> Unit = {}
 ) {
+    val fonteInteracao = remember { MutableInteractionSource() }
+    val pressionado by fonteInteracao.collectIsPressedAsState()
+    val escala by animateFloatAsState(
+        targetValue = if (pressionado && clicavel) 0.98f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "escala_linha_config"
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .scale(escala)
             .clip(RoundedCornerShape(14.dp))
             .background(Panel2)
-            .then(if (clicavel) Modifier.clickable { aoClicar() } else Modifier)
+            .then(
+                if (clicavel) Modifier.clickable(interactionSource = fonteInteracao, indication = null) { aoClicar() }
+                else Modifier
+            )
             .padding(14.dp)
             .padding(bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -205,7 +234,9 @@ private fun TelaTexto(titulo: String, texto: String, aoVoltar: () -> Unit) {
             IconButton(onClick = aoVoltar) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Ink)
             }
-            Text(texto, color = InkDim, style = MaterialTheme.typography.bodyMedium)
+            Text(titulo, color = Ink, style = MaterialTheme.typography.titleMedium)
         }
+        Spacer(Modifier.height(16.dp))
+        Text(texto, color = InkDim, style = MaterialTheme.typography.bodyMedium)
     }
 }
