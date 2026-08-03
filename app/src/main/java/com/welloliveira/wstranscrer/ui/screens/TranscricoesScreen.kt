@@ -4,14 +4,20 @@ import android.content.Intent
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -27,6 +33,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +44,7 @@ import com.welloliveira.wstranscrer.R
 import com.welloliveira.wstranscrer.data.AppDatabase
 import com.welloliveira.wstranscrer.data.Transcricao
 import com.welloliveira.wstranscrer.ui.theme.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -100,7 +108,10 @@ fun TranscricoesScreen(idAbrirInicialmente: Long? = null) {
 
         Spacer(Modifier.height(16.dp))
 
-        if (itens.isEmpty()) {
+        AnimatedVisibility(
+            visible = itens.isEmpty(),
+            enter = fadeIn(tween(300))
+        ) {
             Column(
                 Modifier.fillMaxWidth().padding(top = 60.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -114,11 +125,14 @@ fun TranscricoesScreen(idAbrirInicialmente: Long? = null) {
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
             }
-        } else {
+        }
+
+        if (itens.isNotEmpty()) {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(itens, key = { it.id }) { item ->
+                itemsIndexed(itens, key = { _, it -> it.id }) { indice, item ->
                     ItemTranscricao(
                         item = item,
+                        indice = indice,
                         aoClicar = { selecionada = item },
                         aoAlternarFavorito = { fav ->
                             escopo.launch { dao.definirFavorito(item.id, fav) }
@@ -133,37 +147,70 @@ fun TranscricoesScreen(idAbrirInicialmente: Long? = null) {
 @Composable
 private fun ItemTranscricao(
     item: Transcricao,
+    indice: Int,
     aoClicar: () -> Unit,
     aoAlternarFavorito: (Boolean) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(Panel2)
-            .clickable { aoClicar() }
-            .padding(14.dp),
-        verticalAlignment = Alignment.CenterVertically
+    var visivel by remember(item.id) { mutableStateOf(false) }
+    LaunchedEffect(item.id) {
+        delay((indice.coerceAtMost(8) * 40).toLong())
+        visivel = true
+    }
+
+    val fonteInteracao = remember { MutableInteractionSource() }
+    val pressionado by fonteInteracao.collectIsPressedAsState()
+    val escalaLinha by animateFloatAsState(
+        targetValue = if (pressionado) 0.98f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "escala_item"
+    )
+
+    val escalaEstrela = remember { Animatable(1f) }
+    var primeiraVez by remember(item.id) { mutableStateOf(true) }
+    LaunchedEffect(item.favorito) {
+        if (primeiraVez) {
+            primeiraVez = false
+        } else {
+            escalaEstrela.animateTo(1.35f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+            escalaEstrela.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+        }
+    }
+
+    AnimatedVisibility(
+        visible = visivel,
+        enter = fadeIn(tween(300)) + slideInVertically(tween(300)) { it / 5 }
     ) {
-        Column(Modifier.weight(1f)) {
-            Text(item.nomeArquivo, color = Ink, fontWeight = FontWeight.Bold, maxLines = 1)
-            Spacer(Modifier.height(4.dp))
-            Text(
-                formatarData(item.criadoEm),
-                color = Muted,
-                fontFamily = FontMono,
-                fontSize = 12.sp
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .scale(escalaLinha)
+                .clip(RoundedCornerShape(14.dp))
+                .background(Panel2)
+                .clickable(interactionSource = fonteInteracao, indication = null) { aoClicar() }
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(item.nomeArquivo, color = Ink, fontWeight = FontWeight.Bold, maxLines = 1)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    formatarData(item.criadoEm),
+                    color = Muted,
+                    fontFamily = FontMono,
+                    fontSize = 12.sp
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            Icon(
+                imageVector = if (item.favorito) Icons.Filled.Star else Icons.Filled.StarBorder,
+                contentDescription = "Favoritar",
+                tint = if (item.favorito) Sky else Muted,
+                modifier = Modifier
+                    .size(24.dp)
+                    .scale(escalaEstrela.value)
+                    .clickable { aoAlternarFavorito(!item.favorito) }
             )
         }
-        Spacer(Modifier.width(8.dp))
-        Icon(
-            imageVector = if (item.favorito) Icons.Filled.Star else Icons.Filled.StarBorder,
-            contentDescription = "Favoritar",
-            tint = if (item.favorito) Sky else Muted,
-            modifier = Modifier
-                .size(24.dp)
-                .clickable { aoAlternarFavorito(!item.favorito) }
-        )
     }
 }
 
@@ -177,6 +224,18 @@ private fun DetalheTranscricao(
     val context = LocalContext.current
     var favorito by remember(transcricao.id) { mutableStateOf(transcricao.favorito) }
     var visivel by remember { mutableStateOf(false) }
+    var mostrarConfirmarExcluir by remember { mutableStateOf(false) }
+
+    val escalaEstrela = remember { Animatable(1f) }
+    var primeiraVez by remember(transcricao.id) { mutableStateOf(true) }
+    LaunchedEffect(favorito) {
+        if (primeiraVez) {
+            primeiraVez = false
+        } else {
+            escalaEstrela.animateTo(1.35f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+            escalaEstrela.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+        }
+    }
 
     LaunchedEffect(transcricao.id) {
         visivel = false
@@ -210,6 +269,7 @@ private fun DetalheTranscricao(
                 tint = if (favorito) Sky else Muted,
                 modifier = Modifier
                     .size(26.dp)
+                    .scale(escalaEstrela.value)
                     .clickable {
                         favorito = !favorito
                         aoAlternarFavorito(favorito)
@@ -267,9 +327,26 @@ private fun DetalheTranscricao(
 
         Spacer(Modifier.height(16.dp))
 
-        TextButton(onClick = aoExcluir) {
+        TextButton(onClick = { mostrarConfirmarExcluir = true }) {
             Text("Excluir transcrição", color = Danger)
         }
+    }
+
+    if (mostrarConfirmarExcluir) {
+        AlertDialog(
+            onDismissRequest = { mostrarConfirmarExcluir = false },
+            title = { Text("Excluir transcrição?") },
+            text = { Text("Essa ação não pode ser desfeita.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    mostrarConfirmarExcluir = false
+                    aoExcluir()
+                }) { Text("Excluir", color = Danger) }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarConfirmarExcluir = false }) { Text("Cancelar") }
+            }
+        )
     }
 }
 
@@ -280,10 +357,19 @@ private fun BotaoAcao(
     modifier: Modifier = Modifier,
     aoClicar: () -> Unit
 ) {
+    val fonteInteracao = remember { MutableInteractionSource() }
+    val pressionado by fonteInteracao.collectIsPressedAsState()
+    val escala by animateFloatAsState(
+        targetValue = if (pressionado) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "escala_botao_acao"
+    )
+
     OutlinedButton(
         onClick = aoClicar,
-        modifier = modifier.height(48.dp),
-        shape = RoundedCornerShape(12.dp)
+        modifier = modifier.height(48.dp).scale(escala),
+        shape = RoundedCornerShape(12.dp),
+        interactionSource = fonteInteracao
     ) {
         Icon(icone, contentDescription = null, tint = Ink, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(8.dp))
