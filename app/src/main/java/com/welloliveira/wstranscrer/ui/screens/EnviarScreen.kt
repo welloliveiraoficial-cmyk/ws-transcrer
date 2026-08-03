@@ -438,4 +438,29 @@ private fun lerMetadados(context: Context, uri: Uri): ArquivoSelecionado? {
     resolver.query(uri, null, null, null, null)?.use { cursor ->
         val idxNome = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
         val idxTamanho = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
-        if (cursor.moveToFirst()
+        if (cursor.moveToFirst()) {
+            if (idxNome >= 0) nome = cursor.getString(idxNome) ?: nome
+            if (idxTamanho >= 0) tamanho = cursor.getLong(idxTamanho)
+        }
+    }
+    val mime = resolver.getType(uri) ?: "application/octet-stream"
+    return ArquivoSelecionado(uri, nome, tamanho, mime)
+}
+
+private fun copiarParaCache(context: Context, uri: Uri, nomeArquivo: String): File {
+    val destino = File(context.cacheDir, nomeArquivo)
+    context.contentResolver.openInputStream(uri)?.use { entrada ->
+        destino.outputStream().use { saida -> entrada.copyTo(saida) }
+    }
+    return destino
+}
+
+private fun compartilharTexto(context: Context, texto: String) {
+    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(android.content.Intent.EXTRA_TEXT, texto)
+    }
+    context.startActivity(android.content.Intent.createChooser(intent, "Compartilhar transcrição"))
+}
+
+private fun Int.sp() = androidx.compose.ui.unit.TextUnit(this.toFloat(), androidx.compose.ui.unit.TextUnitType.Sp)
